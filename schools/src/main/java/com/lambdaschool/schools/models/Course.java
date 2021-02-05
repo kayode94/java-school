@@ -1,8 +1,11 @@
 package com.lambdaschool.schools.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.annotations.ApiModel;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,6 +13,7 @@ import java.util.Set;
 /**
  * The entity allowing interaction with the courses table
  */
+@ApiModel(value = "Course", description = "A record of all courses")
 @Entity
 @Table(name = "courses")
 public class Course
@@ -27,6 +31,7 @@ public class Course
      */
     @Column(nullable = true,
         unique = true)
+    @Size(min = 2, max = 30)
     private String coursename;
 
     /**

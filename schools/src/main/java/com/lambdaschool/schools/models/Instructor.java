@@ -1,14 +1,19 @@
 package com.lambdaschool.schools.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The entity allowing interaction with the instructors table
  */
+@ApiModel(value = "Instructor", description = "Instructor record")
 @Entity
 @Table(name = "instructors")
 public class Instructor
@@ -17,6 +22,9 @@ public class Instructor
     /**
      * The primary key (long) of the instructor table
      */
+
+    @ApiModelProperty(name = "instructor id", value = "primary key for instructor", required = true, example = "1")
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long instructorid;
@@ -24,8 +32,15 @@ public class Instructor
     /**
      * The Instructor's name (String)
      */
+
+    @ApiModelProperty(name = "Instructor name", value = "name of the instructor", example = "Billy Bob")
     @Column(nullable = false)
+    @Size(min = 2, max = 30)
     private String name;
+
+    @Transient
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String advice;
 
     /**
      * List of courses associated with this instructor. Does not get saved in the database directly.
@@ -114,5 +129,13 @@ public class Instructor
     public void setCourses(List<Course> courses)
     {
         this.courses = courses;
+    }
+
+    public String getAdvice() {
+        return advice;
+    }
+
+    public void setAdvice(String advice) {
+        this.advice = advice;
     }
 }

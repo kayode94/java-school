@@ -1,7 +1,12 @@
 package com.lambdaschool.schools.controllers;
 
 import com.lambdaschool.schools.models.Course;
+import com.lambdaschool.schools.models.ErrorDetail;
 import com.lambdaschool.schools.services.CoursesService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,13 +39,16 @@ public class CourseController
      * @return JSON list of all courses with a status of OK
      * @see CoursesService#findAll() CoursesService.findAll()
      */
+    @ApiOperation(value = "returns a list of all courses",
+            response = Course.class,
+            responseContainer = "List")
     @GetMapping(value = "/courses",
-        produces = {"application/json"})
+            produces = {"application/json"})
     public ResponseEntity<?> listAllCourses()
     {
         List<Course> myCourses = coursesService.findAll();
         return new ResponseEntity<>(myCourses,
-            HttpStatus.OK);
+                HttpStatus.OK);
     }
 
     /**
@@ -51,15 +59,22 @@ public class CourseController
      * @return JSON object of the course you seek
      * @see CoursesService#findCourseById(long) CoursesService.findCourseById(long)
      */
+    @ApiOperation(value = "Retrieve a course based off of a courseid",
+            response = Course.class)
+    @ApiResponses(value = {@ApiResponse(code = 200,
+            message = "Course Found",
+            response = Course.class), @ApiResponse(code = 404,
+            message = "Course not found",
+            response = ErrorDetail.class)})
     @GetMapping(value = "/course/{courseId}",
-        produces = {"application/json"})
+            produces = {"application/json"})
     public ResponseEntity<?> getCourseById(
-        @PathVariable
-            Long courseId)
+            @PathVariable
+                    Long courseId)
     {
         Course u = coursesService.findCourseById(courseId);
         return new ResponseEntity<>(u,
-            HttpStatus.OK);
+                HttpStatus.OK);
     }
 
     /**
@@ -74,12 +89,12 @@ public class CourseController
      * @see CoursesService#save(Course) CoursesService.save(Course)
      */
     @PostMapping(value = "/course",
-        consumes = {"application/json"})
+            consumes = {"application/json"})
     public ResponseEntity<?> addCourse(
-        @Valid
-        @RequestBody
-            Course newcourse) throws
-                              URISyntaxException
+            @Valid
+            @RequestBody
+                    Course newcourse) throws
+            URISyntaxException
     {
         newcourse.setCourseid(0);
         newcourse = coursesService.save(newcourse);
@@ -87,14 +102,14 @@ public class CourseController
         // set the location header for the newly created resource
         HttpHeaders responseHeaders = new HttpHeaders();
         URI newCourseURI = ServletUriComponentsBuilder.fromCurrentRequest()
-            .path("/{courseid}")
-            .buildAndExpand(newcourse.getCourseid())
-            .toUri();
+                .path("/{courseid}")
+                .buildAndExpand(newcourse.getCourseid())
+                .toUri();
         responseHeaders.setLocation(newCourseURI);
 
         return new ResponseEntity<>(null,
-            responseHeaders,
-            HttpStatus.CREATED);
+                responseHeaders,
+                HttpStatus.CREATED);
     }
 
     /**
@@ -108,14 +123,26 @@ public class CourseController
      * @return status of OK
      * @see CoursesService#save(Course) CoursesService.save(Course)
      */
+    @ApiOperation(value = "updates a course given in the request body",
+            response = Void.class)
+    @ApiResponses(value = {@ApiResponse(code = 200,
+            message = "Course Found",
+            response = Void.class), @ApiResponse(code = 404,
+            message = "Course Not Found!!",
+            response = ErrorDetail.class)})
     @PutMapping(value = "/course/{courseid}",
-        consumes = {"application/json"})
+            consumes = {"application/json"})
     public ResponseEntity<?> updateFullCourse(
-        @Valid
-        @RequestBody
-            Course updateCourse,
-        @PathVariable
-            long courseid)
+            @ApiParam(value = "a full course object",
+                    required = true)
+            @Valid
+            @RequestBody
+                    Course updateCourse,
+            @ApiParam(value = "employeeid",
+                    required = true,
+                    example = "4")
+            @PathVariable
+                    long courseid)
     {
         updateCourse.setCourseid(courseid);
         coursesService.save(updateCourse);
@@ -133,8 +160,8 @@ public class CourseController
      */
     @DeleteMapping(value = "/course/{id}")
     public ResponseEntity<?> deleteCourseById(
-        @PathVariable
-            long id)
+            @PathVariable
+                    long id)
     {
         coursesService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
